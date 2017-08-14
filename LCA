@@ -1,0 +1,72 @@
+//Author: Vineet Shah
+//IIT Indore
+#include<bits/stdc++.h>
+#define rep(i,start,lim) for(long long i=start;i<lim;i++)
+#define repd(i,start,lim) for(long long i=start;i>=lim;i--)
+#define MOD 1000000007
+#define INF (lld)1e18
+#define scan(x) scanf("%lld",&x)
+#define print(x) printf("%lld ",x)
+#define sz(a) lld((a).size())
+#define pb push_back
+#define mp make_pair
+#define f first
+#define s second
+#define all(c) (c).begin(),(c).end()
+#define present(c,x) ((c).find(x) != (c).end())
+#define cpresent(c,x) (find(all(c),x) != (c).end())
+#define br printf("\n")
+#define bit(x,i) (x&(1<<i))
+using namespace std;
+typedef long double ldb;
+typedef long long lld;
+#define N 300005
+#define LOGN 20
+lld level[N];
+vector<lld> adj[N];
+struct LCA{
+	lld p[N][LOGN];
+	void dfs(lld x)
+	{
+		rep(i,1,LOGN) p[x][i]=p[p[x][i-1]][i-1];
+		rep(i,0,sz(adj[x])) if(!level[adj[x][i]]) p[adj[x][i]][0]=x,level[adj[x][i]]=level[x]+1,dfs(adj[x][i]);
+	}
+	lld lca(lld u,lld v)
+	{
+		if(level[u]<level[v]) swap(u,v);
+		repd(i,LOGN-1,0) if(level[p[u][i]]>=level[v]) u=p[u][i];
+		if(u==v) return u;
+		repd(i,LOGN-1,0) if(p[u][i]!=p[v][i]) u=p[u][i],v=p[v][i];
+		return p[u][0];
+	}
+	lld dist(lld u,lld v)
+	{
+		lld temp=lca(u,v);
+		return level[u]-level[temp]+level[v]-level[temp];
+	}
+} lc;
+vector<pair<lld,lld> > final(3);
+int main()
+{
+	lld n,q,r,x,y,u,v,curr,temp;
+	scan(n),level[1]=1;
+	rep(i,0,n-1) 
+		scan(x),scan(y),adj[x].pb(y),adj[y].pb(x);
+	lc.dfs(1);
+	scan(q);
+	while(q--)
+	{
+		scan(r),scan(u),scan(v);
+		rep(i,0,3)
+		{
+			if(i==0) curr=lc.lca(r,u);
+			else if(i==1) curr=lc.lca(u,v);
+			else if(i==2) curr=lc.lca(r,v);
+			temp=lc.dist(u,curr)+lc.dist(v,curr)+lc.dist(r,curr);
+			final[i]={temp,curr};
+		}
+		sort(all(final));
+		print(final[0].s),br;
+	}
+	return 0;
+}
